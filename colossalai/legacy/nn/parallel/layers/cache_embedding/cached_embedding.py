@@ -56,6 +56,8 @@ class CachedEmbeddingBag(BaseEmbeddingBag):
         buffer_size: int = 0,
         pin_weight: bool = False,
         evict_strategy: EvictionStrategy = EvictionStrategy.LFU,
+        comp : bool = False,
+        comp_imp : int = 1,
     ):
         super(CachedEmbeddingBag, self).__init__(
             num_embeddings,
@@ -73,9 +75,11 @@ class CachedEmbeddingBag(BaseEmbeddingBag):
         self.evict_strategy = evict_strategy
         if _weight is None:
             _weight = self._weight_alloc(dtype, device)
+        else:
+            _weight = _weight.detach().clone().pin_memory()
         cuda_row_num = int(num_embeddings * cache_ratio)
         # configure weight & cache
-        self._preprocess(_weight, cuda_row_num, ids_freq_mapping, warmup_ratio, buffer_size, pin_weight)
+        self._preprocess(_weight, cuda_row_num, ids_freq_mapping, warmup_ratio, buffer_size, pin_weight, comp, comp_imp)
         self.cache_op = True
 
     def set_cache_mgr_async_copy(self, flag):
@@ -97,6 +101,8 @@ class CachedEmbeddingBag(BaseEmbeddingBag):
         warmup_ratio=0.7,
         buffer_size=50_000,
         pin_weight=False,
+        comp=False,
+        comp_imp=1,
     ):
         """
         Called after initialized.
@@ -109,7 +115,7 @@ class CachedEmbeddingBag(BaseEmbeddingBag):
             warmup_ratio (float): the amount of rows preloaded in cuda cache
         """
         self.cache_weight_mgr = CachedParamMgr(
-            weight, cuda_row_num, buffer_size, pin_weight, evict_strategy=self.evict_strategy
+            weight, cuda_row_num, buffer_size, pin_weight, evict_strategy=self.evict_strategy, compressed=comp, comp_imp=comp_imp
         )
         self.cache_weight_mgr.reorder(ids_freq_mapping, warmup_ratio)
 

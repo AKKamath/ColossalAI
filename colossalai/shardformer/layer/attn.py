@@ -372,7 +372,7 @@ def _load_flash_attn():
 
 # NOTE: This can cause spawned processes to hang on exit
 # with python 3.9
-@torch.compile()
+#@torch.compile()
 def _rescale_out_lse(out, block_out, lse, block_lse):
     """
     Compute the new attention denominator:

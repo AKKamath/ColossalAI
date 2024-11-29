@@ -7,7 +7,7 @@ import torch.distributed as dist
 from torch.distributed import ProcessGroup
 
 from colossalai.accelerator import get_accelerator
-from colossalai.quantization.fp8 import all_gather_fp8
+#from colossalai.quantization.fp8 import all_gather_fp8
 
 
 class TensorState(Enum):
