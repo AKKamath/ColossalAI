@@ -57,7 +57,8 @@ class CachedEmbeddingBag(BaseEmbeddingBag):
         pin_weight: bool = False,
         evict_strategy: EvictionStrategy = EvictionStrategy.LFU,
         comp : bool = False,
-        comp_imp : int = 1,
+        comp_imp : int = -1,
+        min_cache: int = 1,
     ):
         super(CachedEmbeddingBag, self).__init__(
             num_embeddings,
@@ -77,7 +78,7 @@ class CachedEmbeddingBag(BaseEmbeddingBag):
             _weight = self._weight_alloc(dtype, device)
         else:
             _weight = _weight.detach().clone().pin_memory()
-        cuda_row_num = int(num_embeddings * cache_ratio)
+        cuda_row_num = max(min_cache, int(num_embeddings * cache_ratio))
         # configure weight & cache
         self._preprocess(_weight, cuda_row_num, ids_freq_mapping, warmup_ratio, buffer_size, pin_weight, comp, comp_imp)
         self.cache_op = True
@@ -102,7 +103,7 @@ class CachedEmbeddingBag(BaseEmbeddingBag):
         buffer_size=50_000,
         pin_weight=False,
         comp=False,
-        comp_imp=1,
+        comp_imp=-1,
     ):
         """
         Called after initialized.

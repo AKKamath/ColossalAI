@@ -60,7 +60,7 @@ class CachedParamMgr(torch.nn.Module):
         evict_strategy: EvictionStrategy = EvictionStrategy.DATASET,
         async_copy: bool = False,
         compressed: bool = False,
-        comp_imp: int = 1,
+        comp_imp: int = -1,
     ) -> None:
         super(CachedParamMgr, self).__init__()
         self.buffer_size = buffer_size
@@ -163,10 +163,15 @@ class CachedParamMgr(torch.nn.Module):
                 # Calculations
                 og_size = self.weight.numel() * self.weight.element_size()
                 comp_size = int(torch.sum(comp_sizes))
-                self.comp_size = round((comp_size / og_size) * self.weight.shape[1])
+                self.comp_size = int((comp_size / og_size) * self.weight.shape[1])
                 ratio = og_size / comp_size
                 print(f"OG {og_size} Compress: {comp_size} ({ratio:.2f}x); size per vec {self.comp_size}")
-                self.bitmask = ibp.compress_inplace(self.weight, mask, bitval, None)
+                # Use 8-byte to reduce metadata overhead
+                if(self.comp_imp != 3):
+                    self.bitmask = ibp.compress_inplace(self.weight, mask, bitval, None)
+                else: # Fake compress
+                    self.bitmask = torch.zeros(self.weight.shape[0] + 31 // 32, dtype=torch.int32, device=torch.cuda.current_device())
+                    self.comp_imp = -1
                 torch.cuda.synchronize()
                 self.mask = mask
                 self.bitval = bitval
