@@ -8,7 +8,7 @@ click
 fabric
 contexttimer
 ninja
-torch>=1.13.1,<=2.4.1
+#torch>=1.13,<=2.4.1
 safetensors
 einops
 pydantic
@@ -17,10 +17,10 @@ sentencepiece
 google
 protobuf
 transformers==4.39.3
-peft>=0.7.1
-bitsandbytes>=0.39.0
+#peft>=0.7.1
+#bitsandbytes>=0.39.0
 rpyc==6.0.0
 fastapi
 uvicorn==0.29.0
-galore_torch
+#galore_torch
 diffusers==0.29.0

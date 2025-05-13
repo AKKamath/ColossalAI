@@ -7,7 +7,7 @@ from typing import Dict, Optional
 import torch
 import torch.distributed as dist
 import torch.nn.functional as F
-from bitsandbytes.optim.optimizer import Optimizer2State
+#from bitsandbytes.optim.optimizer import Optimizer2State
 
 from colossalai.interface.optimizer import DistributedOptim
 from colossalai.tensor.d_tensor import get_shard_dim_1d, is_distributed_tensor
@@ -18,7 +18,7 @@ __all__ = ["DistributedGalore"]
 # Mark sharded dimension
 
 
-class DistGaloreAwamW(DistributedOptim, Optimizer2State):
+class DistGaloreAwamW(DistributedOptim):
     r"""Implements Galore, a optimizer-agonistic gradient compression technique on 8-bit AdamW.
     It largely compresses gradient via low-rank projection and is claimed to be insensitive to hyperparams like lr.
     Supports Tensor Parallel and ZeRO stage 1 and 2 via booster and plugin.
